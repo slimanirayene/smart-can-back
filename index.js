@@ -19,27 +19,28 @@ const IoTData = mongoose.model("data", {
 });
 
 app.post("/log", async (req, resp) => {
-	let time = req.body.time;
-	let canId = req.body.id;
-	let canPercentage = req.body.percentage;
+	console.log(req.body);
+	try {
+		const time = req.body.time;
+		const canId = req.body.id;
+		const canPercentage = req.body.percentage;
 
-	const doc = new IoTData({
-		time: time,
-		can: {
-			id: canId,
-			percentage: canPercentage,
-		},
-	});
-
-	doc
-		.save()
-		.then(() => {
-			resp.status(200).json({ status: "OK" });
-		})
-		.catch((err) => {
-			resp.status(500).json({ status: "Not OK" });
-			console.log(err);
+		console.log(`time:${time}/ id:${canId}/ percentage:${canPercentage}`);
+		const doc = new IoTData({
+			time: time,
+			can: {
+				id: canId,
+				percentage: canPercentage,
+			},
 		});
+
+		await doc.save();
+
+		resp.status(200).json({ status: "OK" });
+	} catch (err) {
+		console.error(err);
+		resp.status(500).json({ status: "Not OK", error: err.message });
+	}
 });
 
 let check = false;
@@ -58,7 +59,7 @@ app.get("/testies", (req, res) => {
 
 mongoose
 	.connect(
-		"mongodb+srv://slimanirayene:0000@pitchecluster.qost1.mongodb.net/smart-can ?retryWrites=true&w=majority"
+		"mongodb+srv://slimanirayene:0000@pitchecluster.qost1.mongodb.net/smart-can?retryWrites=true&w=majority"
 	)
 	.then((db) => {
 		console.log("Database connected");
@@ -67,4 +68,4 @@ mongoose
 		console.log(err);
 	});
 
-app.listen(2000);
+app.listen(5000);
